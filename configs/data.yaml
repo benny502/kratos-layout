@@ -1,0 +1,17 @@
+data:
+  mysql:
+    dsn: "root:root@tcp(127.0.0.1:3306)/demo?charset=utf8mb4&parseTime=True&loc=Local"
+    # 设置连接的生存时间
+    conn_max_lifetime: 3600
+    # 设置最大打开的连接数
+    max_open_conns: 100
+    # 用于设置闲置的连接数
+    max_idle_conns: 5
+    # 是否执行prepared statement缓存
+    prepare_stmt: false
+    # 表前缀
+    table_prefix: "" 
+    # 是否使用单数表名
+    singular_table: false
+    # debug模式
+    logMode: debug

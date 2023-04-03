@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package demo.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/go-kratos/kratos-layout/api/demo/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.demo.v1";
+
+service Demo {
+	rpc I18N (I18NRequest) returns (I18NReply) {
+		option (google.api.http) = {
+			get: "/demo/i18n",
+		};
+	};
+	rpc Excel (ExcelRequest) returns (ExcelReply) {
+		option (google.api.http) = {
+			get: "/demo/excel",
+		};
+	};
+}
+
+message I18NRequest {
+	int64 t = 1;
+}
+
+message I18NReply {
+	string result = 1;
+}
+
+message ExcelRequest {
+	int64 t = 1;
+}
+
+message ExcelReply {
+	string filename = 1;
+	string path = 2;
+}
+

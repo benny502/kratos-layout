@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos-layout/internal/conf"
 
+	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
@@ -31,9 +32,10 @@ var (
 
 func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
+	flag.StringVar(&Name, "name", "demo", "server name, eg: -name demo")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server, etcd *etcd.Registry) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -44,20 +46,12 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 			gs,
 			hs,
 		),
+		kratos.Registrar(etcd),
 	)
 }
 
 func main() {
 	flag.Parse()
-	logger := log.With(log.NewStdLogger(os.Stdout),
-		"ts", log.DefaultTimestamp,
-		"caller", log.DefaultCaller,
-		"service.id", id,
-		"service.name", Name,
-		"service.version", Version,
-		"trace.id", tracing.TraceID(),
-		"span.id", tracing.SpanID(),
-	)
 	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
@@ -74,7 +68,39 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
+	var logFile *os.File
+	defer func() {
+		err := logFile.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	logFile, err := os.OpenFile(bc.Log.OutputDir+"error.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	logLevel := log.LevelError
+
+	if bc.Log.LogMode == "debug" {
+		logFile = os.Stdout
+		logLevel = log.LevelDebug
+	}
+
+	logger := log.NewFilter(log.With(log.NewStdLogger(logFile),
+		"ts", log.DefaultTimestamp,
+		"caller", log.DefaultCaller,
+		"service.id", id,
+		"service.name", Name,
+		"service.version", Version,
+		"trace.id", tracing.TraceID(),
+		"span.id", tracing.SpanID(),
+	),
+		log.FilterLevel(logLevel),
+	)
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, bc.App.Etcd, bc.App.Redis, logger)
 	if err != nil {
 		panic(err)
 	}

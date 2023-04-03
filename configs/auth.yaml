@@ -1,0 +1,3 @@
+auth:
+  issuer: abcde
+  jwt_key: $ahiputaobutuputaopi$

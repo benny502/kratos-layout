@@ -3,37 +3,169 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
-    description: The greeting service definition.
+    title: ""
     version: 0.0.1
 paths:
-    /helloworld/{name}:
+    /demo/excel:
         get:
             tags:
-                - Greeter
-                - subgroup
-            description: Sends a greeting
-            operationId: Greeter_SayHello
+                - Demo
+            operationId: Demo_Excel
             parameters:
-                - name: name
-                  in: path
-                  required: true
+                - name: t
+                  in: query
                   schema:
-                    type: string
+                    type: integer
+                    format: int64
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+                                $ref: '#/components/schemas/demo.v1.ExcelReply'
+    /demo/i18n:
+        get:
+            tags:
+                - Demo
+            operationId: Demo_I18N
+            parameters:
+                - name: t
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/demo.v1.I18NReply'
+    /login/check:
+        post:
+            tags:
+                - Login
+            operationId: Login_Check
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/login.v1.CheckRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/login.v1.CheckReply'
+    /login/logout:
+        post:
+            tags:
+                - Login
+            operationId: Login_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/login.v1.LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/login.v1.LogoutReply'
+    /login/vcode:
+        get:
+            tags:
+                - Login
+            operationId: Login_Vcode
+            parameters:
+                - name: t
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/login.v1.VcodeReply'
 components:
     schemas:
-        helloworld.v1.HelloReply:
+        demo.v1.ExcelReply:
             type: object
             properties:
-                message:
+                filename:
                     type: string
-            description: The response message containing the greetings
+                path:
+                    type: string
+        demo.v1.I18NReply:
+            type: object
+            properties:
+                result:
+                    type: string
+        login.v1.CheckReply:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                username:
+                    type: string
+                realname:
+                    type: string
+                roleId:
+                    type: integer
+                    format: int64
+                email:
+                    type: string
+                cellphone:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                isDel:
+                    type: integer
+                    format: int32
+                role:
+                    type: string
+                token:
+                    type: string
+        login.v1.CheckRequest:
+            type: object
+            properties:
+                account:
+                    type: string
+                password:
+                    type: string
+                vcode:
+                    type: string
+        login.v1.LogoutReply:
+            type: object
+            properties: {}
+        login.v1.LogoutRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+        login.v1.VcodeReply:
+            type: object
+            properties:
+                img:
+                    type: string
+                s:
+                    type: string
 tags:
-    - name: Greeter
+    - name: Demo
+    - name: Login

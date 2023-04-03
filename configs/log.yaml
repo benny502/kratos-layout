@@ -1,0 +1,3 @@
+log:
+  log_mode: debug # debug | release
+  output_dir: ../../log/ # 日志输出目录

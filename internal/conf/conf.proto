@@ -8,9 +8,14 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
   Server server = 1;
   Data data = 2;
+  Log log = 3;
+  App app = 4;
+  Auth auth = 5;
 }
 
 message Server {
+  HTTP http = 1;
+  GRPC grpc = 2;
   message HTTP {
     string network = 1;
     string addr = 2;
@@ -21,21 +26,52 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
-  HTTP http = 1;
-  GRPC grpc = 2;
 }
 
 message Data {
-  message Database {
-    string driver = 1;
-    string source = 2;
+  message Mysql {
+    string dsn = 1;
+    int32 conn_max_lifetime = 2;
+    int32 max_open_conns = 3;
+    int32 max_idle_conns = 4;
+    bool prepare_stmt = 5;
+    string table_prefix = 6;
+    bool singular_table = 7;
+    string logMode = 8;
   }
+  Mysql mysql = 1;
+}
+
+message Log {
+  string log_mode = 1;
+  string output_dir = 2;
+}
+
+message App {
+  Mail mail = 1;
+  message Mail {
+    string server = 1;
+    int32 port = 2;
+    string username = 3;
+    string password = 4;
+    bool  smtpauth = 5;
+    string from = 6;
+    string receive = 7;
+    string secure = 8;    
+  }
+  Etcd etcd = 2;
+  message Etcd {
+    string url = 1;
+    google.protobuf.Duration timeout = 2;
+  }
+  Redis redis = 3;
   message Redis {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration read_timeout = 3;
-    google.protobuf.Duration write_timeout = 4;
+    string addr = 1;
+    string password = 2;
   }
-  Database database = 1;
-  Redis redis = 2;
+}
+
+message Auth {
+  string issuer = 1;
+  string jwt_key = 2;
 }

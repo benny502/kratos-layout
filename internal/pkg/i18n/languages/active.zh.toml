@@ -1,0 +1,7 @@
+[TEAM_10001]
+hash = "sha1-73171e7c49b22095d4675a7bb332ed98481d5da8"
+other = "Request failed.Incorrect parameter: teamId."
+
+[TEAM_10004]
+hash = "sha1-2239c4b00772bcc924dee6800ccaafb02673341a"
+other = "请求失败！团队不存在!"

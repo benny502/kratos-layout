@@ -7,30 +7,40 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos-layout/internal/biz"
+	"github.com/go-kratos/kratos-layout/internal/biz/demo"
+	"github.com/go-kratos/kratos-layout/internal/biz/login"
 	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/data"
+	"github.com/go-kratos/kratos-layout/internal/pkg/etcd"
+	"github.com/go-kratos/kratos-layout/internal/pkg/websocket"
 	"github.com/go-kratos/kratos-layout/internal/server"
 	"github.com/go-kratos/kratos-layout/internal/service"
-
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+)
+
+import (
+	_ "go.uber.org/automaxprocs"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, auth *conf.Auth, app_Etcd *conf.App_Etcd, app_Redis *conf.App_Redis, logger log.Logger) (*kratos.App, func(), error) {
 	dataData, cleanup, err := data.NewData(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	greeterRepo := data.NewGreeterRepo(dataData, logger)
-	greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
-	greeterService := service.NewGreeterService(greeterUsecase)
-	grpcServer := server.NewGRPCServer(confServer, greeterService, logger)
-	httpServer := server.NewHTTPServer(confServer, greeterService, logger)
-	app := newApp(logger, grpcServer, httpServer)
+	userRepo := data.NewUserData(dataData, logger)
+	bizLogin := login.NewBizLogin(userRepo, auth, logger)
+	loginService := service.NewLoginService(bizLogin, logger)
+	grpcServer := server.NewGRPCServer(confServer, loginService, logger)
+	bizDemo := demo.NewBizDemo(userRepo, logger)
+	demoService := service.NewDemoService(bizDemo, logger)
+	websocketWebsocket := websocket.NewWebsocket(logger)
+	httpServer := server.NewHTTPServer(confServer, auth, loginService, demoService, websocketWebsocket, logger)
+	registry := etcd.NewEtcdRegistry(app_Etcd)
+	app := newApp(logger, grpcServer, httpServer, registry)
 	return app, func() {
 		cleanup()
 	}, nil

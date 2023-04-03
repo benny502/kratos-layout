@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package login.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/go-kratos/kratos-layout/api/login/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.login.v1";
+
+service Login {
+	rpc Vcode (VcodeRequest) returns (VcodeReply) {
+		option (google.api.http) = {
+			get: "/login/vcode",
+		};
+	};
+	rpc Check (CheckRequest) returns (CheckReply) {
+		option (google.api.http) = {
+			post: "/login/check",
+			body: "*",
+		};
+	};
+	rpc Logout (LogoutRequest) returns (LogoutReply) {
+		option (google.api.http) = {
+			post: "/login/logout",
+			body: "*",
+		};
+	};
+}
+
+message VcodeRequest {
+	int64 t = 1;
+}
+
+message VcodeReply {
+	string img = 1;
+	string s = 2;
+}
+
+message CheckRequest {
+	string account = 1;
+	string password = 2;
+	string vcode = 3;
+}
+
+message CheckReply {
+	int64 id = 1;
+	string username = 2;
+	string realname = 3;
+	int64 roleId = 4;
+	string email = 5;
+	string cellphone = 6;
+	string createdAt = 7;
+	string updatedAt = 8;
+	int32 status = 9;
+	int32 isDel = 10;
+	string role = 11;
+	string token = 12;
+}
+
+message LogoutRequest {
+	int64 id = 1;
+}
+message LogoutReply {
+}
